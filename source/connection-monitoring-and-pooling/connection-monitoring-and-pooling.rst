@@ -9,7 +9,7 @@ Connection Monitoring and Pooling
 :Status: Accepted
 :Type: Standards
 :Minimum Server Version: N/A
-:Last Modified: September 24, 2020
+:Last Modified: 2021-04-07
 :Version: 1.4.0
 
 .. contents::
@@ -684,6 +684,69 @@ eagerly so that any operations waiting on `Connections <#connection>`_ can retry
 as soon as possible. The pool MUST NOT rely on WaitQueueTimeoutMS to clear
 requests from the WaitQueue.
 
+Load Balancer Mode
+------------------
+
+When the driver is in load balancing mode and executing any cursor-initiating command, the driver
+MUST NOT check the connection back into the connection pool until the initial cursor
+or :code:`getMore` command has returned with an :code:`id` of :code:`0`. Otherwise the
+driver MUST continue to use the same connection for all :code:`getMore` and
+:code:`killCursors` commands for a given cursor. Drivers MUST check the connection back into
+pool on all :code:`cursor.close()` calls.
+
+In the case of network errors for all operations that create a cursor, the driver
+MUST behave as defined in the Retryable Reads specification. If a :code:`getMore`
+fails with a network error, drivers MUST unpin the connection that’s pinned to th
+e cursor and return it to the pool so it does not count against :code:`maxPoolSize`.
+Future calls to :code:`close()` on the cursor MUST NOT attempt to execute a
+:code:`killCursors` command on the server.
+
+When the driver is in load balancing mode, drivers MUST NOT check the connection
+back into the connection pool while executing a transaction except for the error
+cases listed in the next paragraph. The driver MUST continue to use the same
+connection to execute all commands for a given transaction with the exception
+of :code:`commitTransaction` and :code:`abortTransaction`, if either one of these
+operations fails, the driver MUST behave as defined in the Transactions Specification.
+
+In the case of a network errors in transactions, the driver MUST implement the
+following cases:
+
+- When a network error occurs on a :code:`commitTransaction`, the connection MUST
+  be closed and the operation retried once with a newly checked out connection from the pool.
+- When a network error occurs on an :code:`abortTransaction`, the connection MUST be closed
+  and the operation retried once with a newly checked out connection from the pool. Any
+  subsequent errors from the :code:`abortTransaction` command MUST be ignored.
+- When a network error occurs in any other operation inside a transaction, the connection
+  MUST be closed and unpinned and returned to the pool. The driver MUST add a
+  “TransientTransactionError” label to the error.
+
+The driver connection pool MUST track the purpose for which connections are checked out
+in the following 3 categories:
+
+- Connections checked out for cursors
+- Connections checked out for transactions
+- Connections checked out for operations not falling under the previous 2 categories
+
+When the connection pool’s :code:`maxPoolSize` is reached and the pool times out waiting
+for a new connection the :code:`WaitQueueTimeoutError` MUST include a new detailed message,
+as well as the published :code:`ConnectionCheckOutFailedEvent`: “Timeout waiting for
+connection from the connection pool. maxPoolSize: n, connections in use by cursors: n,
+connections in use by transactions: n, connections in use by other operations: n”.
+
+When the driver is in load balanced mode and encounters any error that requires the
+connection pool to be cleared, the driver MUST only clear connections with the same
+:code:`serviceId` as the connection which errored. The connection pool MUST emit a
+:code:`PoolClearedEvent` event with the :code:`serviceId` of the connection that errored.
+The :code:`PoolClearedEvent` MUST have a new field of :code:`serviceId` with type
+:code:`ObjectId`.
+
+If there is a network error or timeout on the connection before the initial handshake
+completes, the driver MUST also close the associated connection. If the network error
+occurred on the handshake’s :code:`hello` command, the connection pool MUST NOT be cleared.
+If the network error occurred after the handshake’s :code:`hello` command, the connection
+POOL must clear close all connections with the matching :code:`serviceId`.
+
+
 Forking
 -------
 
@@ -765,6 +828,11 @@ Events
        *  The ServerAddress of the Endpoint the pool is attempting to connect to.
        */
       address: string;
+
+      /**
+       * The server id for which the pool was cleared for in load balancing mode.
+       */
+      serviceId: ObjectId | null
     }
 
     /**
@@ -1077,6 +1145,8 @@ Change log
 
 :2019-06-06: Add "connectionError" as a valid reason for
              ConnectionCheckOutFailedEvent
+
+:2021-4-7: Adding in behaviour for load balancer mode.
 
 .. Section for links.
 

@@ -9,7 +9,7 @@ Server Discovery And Monitoring
 :Status: Accepted
 :Type: Standards
 :Version: 2.21
-:Last Modified: 2020-06-08
+:Last Modified: 2021-04-07
 
 .. contents::
 
@@ -147,6 +147,7 @@ A server type from which a client can receive application data:
 * RSPrimary
 * RSSecondary
 * Standalone
+* LoadBalanced
 
 Round trip time
 ```````````````
@@ -280,7 +281,7 @@ ServerType
 
 Standalone, Mongos,
 PossiblePrimary, RSPrimary, RSSecondary, RSArbiter, RSOther, RSGhost,
-or Unknown.
+LoadBalancer or Unknown.
 
 See `parsing an ismaster response`_.
 
@@ -455,6 +456,9 @@ It is allowed to use ``directConnection=true`` in conjunction with the
 verify that setName matches the specified name, as per
 `verifying setName with TopologyType Single`_.
 
+When the ``replicaSet`` URI option is provided, the driver MUST throw an
+exception when used in conjunction with the ``loadBalanced=true`` option.
+
 When a MongoClient is initialized using language-specific native options,
 the user MUST be able to set the client's initial replica set name.
 A driver MAY require the set name in order to connect to a replica set,
@@ -466,11 +470,14 @@ Allowed configuration combinations
 Drivers MUST enforce:
 
 * TopologyType Single cannot be used with multiple seeds.
-* ``directConnection=true`` cannot be used with multiple seeds.
+* ``directConnection=true`` and ``loadBalanced=true`` cannot be
+  used with multiple seeds.
 * If setName is not null, only TopologyType ReplicaSetNoPrimary,
   and possibly Single,
   are allowed.
   (See `verifying setName with TopologyType Single`_.)
+* ``loadBalanced=true`` cannot be used in conjunction with
+  ``directConnection=true`` or ``replicaSet``
 
 Handling of SRV URIs resolving to single host
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -481,6 +488,15 @@ driver MUST start in Unknown topology, and follow the rules in the
 `TopologyType table`_ for transitioning to other topologies. In particular,
 the driver MUST NOT use the number of hosts from the initial SRV lookup
 to decide what topology to start in.
+
+A default connection string option for ``loadBalanced=true`` MUST be valid
+in a TXT record, and driver validation of the TXT records MUST allow for
+this option to also be a part of the connection string.
+
+When ``loadBalanced=true`` is an option in the TXT record, the driver
+MUST NOT poll for changes in the SRV record. When in this mode, the driver
+MUST NOT publish any SDAM events until the SRV lookup completes and is
+successful.
 
 heartbeatFrequencyMS
 ````````````````````
@@ -595,6 +611,8 @@ are not replica set member states at all.
 |                   | secondary, nor arbiter.                                       |
 +-------------------+---------------------------------------------------------------+
 | RSGhost           | "isreplicaset: true" in response.                             |
++-------------------+---------------------------------------------------------------+
+| LoadBalanced      | "loadBalanced=true" in URI and "serviceId" in response.       |
 +-------------------+---------------------------------------------------------------+
 
 A server can transition from any state to any other.  For example, an
@@ -749,6 +767,12 @@ response to the current ServerDescription's topologyVersion:
 See `Replacing the TopologyDescription`_ for an example implementation of
 topologyVersion comparison.
 
+serviceId
+````````
+
+MongoDB 5.0 and later, as well as any mongos-like service include a ``serviceId``
+field when the service is configured behind a load balancer.
+
 Other ServerDescription fields
 ``````````````````````````````
 
@@ -797,6 +821,76 @@ the ServerDescription in TopologyDescription.servers
 MUST be replaced with the new ServerDescription.
 
 .. _is compatible:
+
+
+TopologyType LoadBalanced
+`````````````````````````
+
+In the case of the driver having the :code:`loadBalanced=true` connection string option
+specified, every pooled connection MUST add a loadBalanced field to the hello command
+in its `handshake <https://bit.ly/3w9VGCC>`__. The value of the field MUST be true.
+When the driver is in load balanced mode, the value of this parameter MUST be true.
+
+A new :code:`TopologyType` MUST be implemented to indicate to the driver that it is
+connected to a topology that is deployed behind a load balancer. The
+:code:`TopologyType` MUST be named :code:`LoadBalanced`. A new :code:`ServerType` MUST
+be implemented to represent a load balancer. The :code:`ServerType` MUST be named
+:code:`LoadBalancer`.
+
+When :code:`loadBalanced=true` the topology MUST start in type :code:`LoadBalanced`
+and MUST remain as :code:`LoadBalanced` indefinitely. The topology MUST contain 1
+:code:`ServerDescription` with a :code:`ServerType` of :code:`LoadBalancer`. The
+"address" field of the :code:`ServerDescription` MUST be set to the address field
+of the load balancer. All other fields in the :code:`ServerDescription` MUST remain unset.
+
+When :code:`loadBalanced=true`, the driver MUST NOT start a monitoring connection,
+however drivers MUST emit the following series of SDAM events:
+
+- :code:`TopologyOpeningEvent` when the topology is created.
+- :code:`TopologyDescriptionChangedEvent`. The :code:`previousDescription` field MUST
+  have :code:`TopologyType` :code:`Unknown` and no servers. The :code:`newDescription`
+  MUST have :code:`TopologyType` :code:`LoadBalanced` and one server with
+  :code:`ServerType` :code:`Unknown`.
+- :code:`ServerOpeningEvent` when the server representing the load balancer is created.
+- :code:`ServerDescription`ChangedEvent. The :code:`previousDescription` MUST have
+  :code:`ServerType` :code:`Unknown`. The :code:`newDescription` MUST have
+  :code:`ServerType` :code:`LoadBalancer`.
+- :code:`TopologyDescriptionChangedEvent`. The :code:`newDescription` MUST have
+  :code:`TopologyType` :code:`LoadBalanced` and one server with :code:`ServerType`
+  :code:`LoadBalancer`.
+
+Drivers MUST also emit a :code:`ServerClosedEvent` and :code:`TopologyClosedEvent` when
+the topology is closed and MUST NOT emit any other events when operating in this mode.
+
+When :code:`loadBalanced=true` and the server’s hello response does not contain a
+:code:`serviceId` field, the driver MUST throw an exception with the message
+*“Driver attempted to initialize in load balancing mode, but the server does not
+support this mode.”*
+
+When :code:`loadBalanced=false` or the option is not present, the driver MUST NOT
+change any existing behaviour when connected to a non-load balanced service.
+If the driver is connected to a service that is configured behind a load balancer,
+and the service supports running behind a load balancer, the service MAY return an
+error that the driver is not configured to use it properly.
+
+If the :code:`loadBalanced=true` connection string option is not specified, the
+driver MUST omit the option in connection handshakes.
+
+*Example:*
+
+Driver connection string contains :code:`loadBalanced=false` or no
+:code:`loadBalanced` option:
+
+.. code:: typescript
+
+    { hello: 1 }
+
+Driver connection string contains :code:`loadBalanced=true`:
+
+.. code:: typescript
+
+    { hello: 1, loadBalanced: 1 }
+
 
 Checking wire protocol compatibility
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -908,7 +1002,7 @@ TopologyType explanations
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This subsection complements the `TopologyType table`_
-with prose explanations of the TopologyTypes (besides Single).
+with prose explanations of the TopologyTypes (besides Single and LoadBalanced).
 
 TopologyType Unknown
   A starting state.
@@ -1259,6 +1353,10 @@ implementation::
         topologyVersion = error.topologyVersion
 
         with client.lock:
+            # Don't perform any changes if type=LoadBalanced
+            if type=LoadBalanced
+                return
+
             # Ignore stale errors based on generation and topologyVersion.
             if isStaleError(client.topologyDescription, error)
                 return
@@ -1369,8 +1467,12 @@ we distinguish two phases of connecting to a server and using it for application
 
 If there is a network error or timeout on the connection before the handshake completes,
 the client MUST replace the server's description
-with a default ServerDescription of type Unknown,
-and fill the ServerDescription's error field with useful information.
+with a default ServerDescription of type Unknown when the TopologyType is not
+LoadBalanced, and fill the ServerDescription's error field with useful information.
+
+If there is a network error or timeout on the connection before the handshake completes,
+and the TopologyType is LoadBalanced, the client MUST keep the ServerDescription
+as LoadBalancer and fill the ServerDescription's error field with useful information.
 
 If there is a network timeout on the connection after the handshake completes,
 the client MUST NOT mark the server Unknown.
@@ -1378,8 +1480,8 @@ the client MUST NOT mark the server Unknown.
 rather than an unavailable server.)
 If, however, there is some other network error on the connection after the
 handshake completes, the client MUST replace the server's description
-with a default ServerDescription of type Unknown,
-and fill the ServerDescription's error field with useful information,
+with a default ServerDescription of type Unknown if the TopologyType is not
+LoadBalanced, and fill the ServerDescription's error field with useful information,
 the same as if an error or timeout occurred before the handshake completed.
 
 When the client marks a server Unknown due to a network error or timeout,
@@ -1516,8 +1618,12 @@ Authentication errors
 ~~~~~~~~~~~~~~~~~~~~~
 
 If the authentication handshake fails for a connection, drivers MUST mark the
-server Unknown and clear the server's connection pool. (See
-`Why mark a server Unknown after an auth error?`_)
+server Unknown and clear the server's connection pool if the TopologyType is
+not LoadBalanced. (See `Why mark a server Unknown after an auth error?`_)
+
+If the authentication handshake fails for a connection and the TopologyType is
+LoadBalanced, drivers MUST clear the connection pool for all connections with
+the corresponding ``serviceId``.
 
 Monitoring SDAM events
 ''''''''''''''''''''''
@@ -2483,3 +2589,5 @@ mark the server Unknown and clear the pool.
 .. _Connection Monitoring and Pooling spec: /source/connection-monitoring-and-pooling/connection-monitoring-and-pooling.rst
 .. _CMAP spec: /source/connection-monitoring-and-pooling/connection-monitoring-and-pooling.rst
 .. _Authentication spec: /source/auth/auth.rst
+
+2021-4-7: Adding in behaviour for load balancer mode.

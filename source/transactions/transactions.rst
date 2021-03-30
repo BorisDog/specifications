@@ -829,6 +829,32 @@ session. Additionally, any non-transaction operation using a pinned
 ClientSession MUST unpin the session and the operation MUST perform normal
 server selection.
 
+Pinning in Load Balancer Mode
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When the driver is in load balancing mode, drivers MUST NOT check the
+connection back into the connection pool while executing a transaction
+except for the error cases listed in the next paragraph. The driver MUST
+continue to use the same connection to execute all commands for a given
+transaction with the exception of :code:`commitTransaction` and
+:code:`abortTransaction`, if either one of these operations fails, the
+driver MUST behave as defined in the this Specification.
+
+In the case of a network errors in transactions, the driver MUST implement the
+following cases:
+
+- When a network error occurs on a :code:`commitTransaction`, the connection MUST
+  be closed and the operation retried once with a newly checked out connection from
+  the pool.
+- When a network error occurs on an :code:`abortTransaction`, the connection MUST be
+  closed and the operation retried once with a newly checked out connection from
+  the pool. Any subsequent errors from the :code:`abortTransaction` command MUST be
+  ignored.
+- When a network error occurs in any other operation inside a transaction, the
+  connection MUST be closed and unpinned and returned to the pool. The driver
+  MUST add a “TransientTransactionError” label to the error.
+
+
 recoveryToken field
 ~~~~~~~~~~~~~~~~~~~
 

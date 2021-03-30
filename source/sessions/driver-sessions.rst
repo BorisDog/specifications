@@ -12,7 +12,7 @@ Driver Sessions Specification
 :Status: Accepted (Could be Draft, Accepted, Rejected, Final, or Replaced)
 :Type: Standards
 :Minimum Server Version: 3.6 (The minimum server version this spec applies to)
-:Last Modified: 2019-10-22
+:Last Modified: 2021-04-08
 
 .. contents::
 
@@ -519,6 +519,7 @@ includes at least one connected, data-bearing server.
 2. Having verified in step 1 that the ``TopologyDescription`` includes at least
 one connected server a driver can now determine whether sessions are supported
 by inspecting the ``TopologyType`` and ``logicalSessionTimeoutMinutes`` property.
+When the ``TopologyType`` is ``LoadBalanced``, sessions are always supported.
 
 Possible race conditions when checking whether a deployment supports sessions
 -----------------------------------------------------------------------------
@@ -1262,3 +1263,5 @@ Change log
 :2019-10-22: Drivers may defer checking if a deployment supports sessions until the first
 operation performed with a session
 :2020-05-26: Simplify logic for determining sessions support
+:2020-05-26: Simplify logic for determining sessions support
+:2021-04-08: Adding in behaviour for load balancer mode.
