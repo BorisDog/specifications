@@ -3894,6 +3894,9 @@ Changelog
 ..
   Please note schema version bumps in changelog entries where applicable.
 
+:2022-05-10: **Schema version 1.14.**
+             Add ``ignoreLogMessages`` and ``ignoreExtraLogs`` fields
+             to ``expectLogMessages``section.
 :2023-04-13: Remove ``readConcern`` and ``writeConcern`` options from ``runCommand`` operation.
 :2023-02-24: Fix typo in the description of the ``$$matchAsRoot`` matching operator.
 :2022-10-17: Add description of a `close` operation for client entities.

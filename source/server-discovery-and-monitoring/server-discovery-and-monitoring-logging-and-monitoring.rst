@@ -18,7 +18,6 @@ Abstract
 The SDAM logging and monitoring specification defines a set of behaviour in the drivers for providing runtime information about server discovery and monitoring (SDAM) in log
 messages as well as in events which users can consume programmatically, either directly or by integrating with third-party APM libraries.
 
-
 -----------
 Definitions
 -----------
@@ -489,7 +488,7 @@ The unstructured form SHOULD be as follows, using the values defined in the stru
 
   Starting monitoring for topology with ID {{topologyId}}
 
-"Stopping Topology Monitoring" Log Message
+"Stopped Topology Monitoring" Log Message
 ------------------------------------------
 This message MUST be published under the same circumstances as a ``TopologyClosedEvent`` as detailed in `Events API <#events-api>_`.
 
@@ -505,11 +504,11 @@ In addition to the relevant common fields, these messages MUST contain the follo
 
    * - message
      - String
-     - "Stopping topology monitoring"
+     - "Stopped topology monitoring"
 
 The unstructured form SHOULD be as follows, using the values defined in the structured format above to fill in placeholders as appropriate:
 
-  Stopping monitoring for topology with ID {{topologyId}}
+  Stopped monitoring for topology with ID {{topologyId}}
 
 "Starting Server Monitoring" Log Message
 ----------------------------------------
@@ -533,7 +532,7 @@ The unstructured form SHOULD be as follows, using the values defined in the stru
 
   Starting monitoring for server {{serverHost}}:{{serverPort}} in topology with ID {{topologyId}}
 
-"Stopping Server Monitoring" Log Message
+"Stopped Server Monitoring" Log Message
 ----------------------------------------
 This message MUST be published under the same circumstances as a ``ServerClosedEvent`` as detailed in `Events API <#events-api>_`.
 
@@ -549,11 +548,11 @@ In addition to the relevant common fields, these messages MUST contain the follo
 
    * - message
      - String
-     - "Stopping server monitoring"
+     - "Stopped server monitoring"
 
 The unstructured form SHOULD be as follows, using the values defined in the structured format above to fill in placeholders as appropriate:
 
-  Stopping monitoring for server {{serverHost}}:{{serverPort}} in topology with ID {{topologyId}}
+  Stopped monitoring for server {{serverHost}}:{{serverPort}} in topology with ID {{topologyId}}
 
 "Topology Description Changed" Log Message
 ------------------------------------------
@@ -698,7 +697,7 @@ See the `README <https://github.com/mongodb/specifications/server-discovery-and-
 Changelog
 =========
 
-:2023-01-31: Renamed to include "logging" in the title. Reorganized contents and made consistent with CLAM spec, and added requirements
+:2023-03-31: Renamed to include "logging" in the title. Reorganized contents and made consistent with CLAM spec, and added requirements
              for SDAM log messages. 
 :2022-10-05: Remove spec front matter and reformat changelog.
 :2021-05-06: Updated to use modern terminology.
