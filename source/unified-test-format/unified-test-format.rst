@@ -1398,6 +1398,14 @@ The structure of each object is as follows:
   message counts are the same and that there are no extra messages emitted by the
   client during the test run.
 
+- ``ignoreLogMessages``: Optional array of `expectedLogMessage`_ objects. List of
+  messages, which should be ignored on the corresponding client while executing `operations`_.
+
+- ``ignoreExtraLogs``: Optional boolean. Specifies how the messages array is matched 
+  against the observed logs. If false, observed logs after all specified logs have
+  matched MUST cause a test failure; if true, observed logs after all specified logs
+  have been matched MUST NOT cause a test failure. Defaults to false.
+
 expectedLogMessage
 ~~~~~~~~~~~~~~~~~~
 
@@ -3896,7 +3904,7 @@ Changelog
 
 :2022-05-10: **Schema version 1.14.**
              Add ``ignoreLogMessages`` and ``ignoreExtraLogs`` fields
-             to ``expectLogMessages``section.
+             to ``expectedLogMessagesForClient``section.
 :2023-04-13: Remove ``readConcern`` and ``writeConcern`` options from ``runCommand`` operation.
 :2023-02-24: Fix typo in the description of the ``$$matchAsRoot`` matching operator.
 :2022-10-17: Add description of a `close` operation for client entities.

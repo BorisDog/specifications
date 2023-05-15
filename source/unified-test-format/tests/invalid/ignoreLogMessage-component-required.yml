@@ -1,0 +1,17 @@
+description: "ignoreLogMessage-component-type"
+
+schemaVersion: "1.14"
+
+createEntities:
+  - client:
+      id: &client0 "client0"
+
+tests:
+  - description: "foo"
+    operations: []
+    expectLogMessages:
+      - client: *client0
+        messages: []
+        ignoreLogMessages:
+          - level: debug
+            data: {}

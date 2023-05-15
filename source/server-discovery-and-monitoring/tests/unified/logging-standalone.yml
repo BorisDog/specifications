@@ -1,4 +1,4 @@
-description: "replicaset-logging"
+description: "standalone-logging"
 
 schemaVersion: "1.14"
 
@@ -10,7 +10,6 @@ runOnRequirements:
 createEntities:
   - client:
       id: &setupClient setupClient
-      useMultipleMongoses: false
 
 tests:
   - description: "Topology lifecycle"
@@ -26,6 +25,7 @@ tests:
                 observeEvents:
                   - topologyDescriptionChangedEvent
       # ensure the topology has been fully discovered before closing the client.
+      # expected events are initial server discovery and server connect event.
       - name: waitForEvent
         object: testRunner
         arguments:
@@ -38,11 +38,17 @@ tests:
     expectLogMessages:
       - client: *client
         ignoreLogMessages:
-          - data:
+          - level: debug
+            component: topology
+            data:
               message: "Server heartbeat started"
-          - data:
+          - level: debug
+            component: topology
+            data:
               message: "Server heartbeat succeeded"
-          - data:
+          - level: debug
+            component: topology
+            data:
               message: "Server heartbeat failed"
         messages:
           - level: debug
@@ -56,7 +62,7 @@ tests:
               message: "Topology description changed"
               topologyId: { $$exists: true }
               previousDescription:  { $$exists: true } # unknown topology
-              newDescription: { $$exists: true } # single topology
+              newDescription: { $$exists: true } # unknown topology, disconnected server
           - level: debug
             component: topology
             data:
@@ -70,7 +76,7 @@ tests:
               message: "Topology description changed"
               topologyId: { $$exists: true }
               previousDescription:  { $$exists: true }
-              newDescription: { $$exists: true }
+              newDescription: { $$exists: true } # standalone topology
           - level: debug
             component: topology
             data:
@@ -83,14 +89,14 @@ tests:
             data:
               message: "Topology description changed"
               topologyId: { $$exists: true }
-              previousDescription:  { $$exists: true }
-              newDescription: { $$exists: true }
+              previousDescription:  { $$exists: true } # standalone topology
+              newDescription: { $$exists: true }  # unknown topology
           - level: debug
             component: topology
             data:
               message: "Stopped topology monitoring"
               topologyId: { $$exists: true }
-  - description: Succefull heartbeat
+  - description: Successful heartbeat
     operations:
       - name: createEntities
         object: testRunner
@@ -102,8 +108,6 @@ tests:
                   topology: debug
                 observeEvents:
                   - serverHeartbeatSucceededEvent
-                uriOptions:
-                  heartbeatFrequencyMS: 500
       - name: waitForEvent
         object: testRunner
         arguments:
@@ -114,49 +118,63 @@ tests:
       - name: close
         object: *client
     expectLogMessages:
-    - client: client
-      ignoreExtraLogs: true
-      ignoreLogMessages:
-        - data:
-            message: "Topology description changed"
-        - data:
-            message: "Stopped topology monitoring"
-        - data:
-            message: "Stopped server monitoring"
-        - data:
-            message: "Topology description changed"
-        - data:
-            message: "Starting server monitoring"
-        - data:
-            message: "Starting topology monitoring"
-        - data:
-            message: "Server heartbeat failed"
-      messages:
-        - level: debug
-          component: topology
-          data:
-            message: "Server heartbeat started"
-            awaited: { $$exists: true }
-            topologyId: { $$exists: true }
-            serverHost: { $$type: string }
-            serverPort: { $$type: [int, long] }
-            driverConnectionId: { $$exists: true }
-            serverConnectionId: { $$exists: true }
-        - level: debug
-          component: topology
-          data:
-            message: "Server heartbeat succeeded"
-            awaited: { $$exists: true }
-            topologyId: { $$exists: true }
-            serverHost: { $$type: string }
-            serverPort: { $$type: [int, long] }
-            driverConnectionId: { $$exists: true }
-            serverConnectionId: { $$exists: true }
-            durationMS: { $$type: [int, long] }
-            reply:
-              $$matchAsDocument:
-                "$$matchAsRoot":
-                  ok: 1
+      - client: client
+        ignoreExtraLogs: true
+        ignoreLogMessages:
+          - level: debug
+            component: topology
+            data:
+              message: "Topology description changed"
+          - level: debug
+            component: topology
+            data:
+              message: "Stopped topology monitoring"
+          - level: debug
+            component: topology
+            data:
+              message: "Stopped server monitoring"
+          - level: debug
+            component: topology
+            data:
+              message: "Topology description changed"
+          - level: debug
+            component: topology
+            data:
+              message: "Starting server monitoring"
+          - level: debug
+            component: topology
+            data:
+              message: "Starting topology monitoring"
+          - level: debug
+            component: topology
+            data:
+              message: "Server heartbeat failed"
+        messages:
+          - level: debug
+            component: topology
+            data:
+              message: "Server heartbeat started"
+              awaited: { $$exists: true }
+              topologyId: { $$exists: true }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              driverConnectionId: { $$exists: true }
+              serverConnectionId: { $$exists: true }
+          - level: debug
+            component: topology
+            data:
+              message: "Server heartbeat succeeded"
+              awaited: { $$exists: true }
+              topologyId: { $$exists: true }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              driverConnectionId: { $$exists: true }
+              serverConnectionId: { $$exists: true }
+              durationMS: { $$type: [int, long] }
+              reply:
+                $$matchAsDocument:
+                  "$$matchAsRoot":
+                    ok: 1
   - description: Failing heartbeat
     operations:
     - name: createEntities
@@ -171,15 +189,14 @@ tests:
               - serverHeartbeatFailedEvent
             uriOptions:
               appname: failingHeartbeatLoggingTest
-              heartbeatFrequencyMS: 500
     - name: failPoint
       object: testRunner
       arguments:
-        client: *setupClient      
+        client: *setupClient
         failPoint:
           configureFailPoint: failCommand
           mode:
-            times: 2
+            times: 2 # account for RTT thread
           data:
             failCommands:
               - hello
@@ -194,34 +211,50 @@ tests:
           serverHeartbeatFailedEvent: {}
         count: 1
     expectLogMessages:
-    - client: *client
-      ignoreLogMessages:
-        - data:
-            message: "Topology description changed"
-        - data:
-            message: "Stopped topology monitoring"
-        - data:
-            message: "Stopped server monitoring"
-        - data:
-            message: "Topology description changed"
-        - data:
-            message: "Starting server monitoring"
-        - data:
-            message: "Starting topology monitoring"
-        - data:
-            message: "Server heartbeat started"
-        - data:
-            message: "Server heartbeat succeeded"
-      messages:
-        - level: debug
-          component: topology
-          data:
-            message: "Server heartbeat failed"
-            awaited: { $$exists: true }
-            topologyId: { $$exists: true }
-            serverHost: { $$type: string }
-            serverPort: { $$type: [int, long] }
-            driverConnectionId: { $$exists: true }
-            serverConnectionId: { $$exists: true }
-            durationMS: { $$type: [int, long] }
-            failure: { $$exists: true }
+      - client: *client
+        ignoreLogMessages:
+          - level: debug
+            component: topology
+            data:
+              message: "Topology description changed"
+          - level: debug
+            component: topology
+            data:
+              message: "Stopped topology monitoring"
+          - level: debug
+            component: topology
+            data:
+              message: "Stopped server monitoring"
+          - level: debug
+            component: topology
+            data:
+              message: "Topology description changed"
+          - level: debug
+            component: topology
+            data:
+              message: "Starting server monitoring"
+          - level: debug
+            component: topology
+            data:
+              message: "Starting topology monitoring"
+          - level: debug
+            component: topology
+            data:
+              message: "Server heartbeat started"
+          - level: debug
+            component: topology
+            data:
+              message: "Server heartbeat succeeded"
+        messages:
+          - level: debug
+            component: topology
+            data:
+              message: "Server heartbeat failed"
+              awaited: { $$exists: true }
+              topologyId: { $$exists: true }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              driverConnectionId: { $$exists: true }
+              serverConnectionId: { $$exists: true }
+              durationMS: { $$type: [int, long] }
+              failure: { $$exists: true }

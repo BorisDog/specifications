@@ -62,21 +62,29 @@
           "client": "client",
           "ignoreLogMessages": [
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Starting server monitoring"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Server heartbeat started"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Server heartbeat succeeded"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Server heartbeat failed"
               }
@@ -210,7 +218,7 @@
       ]
     },
     {
-      "description": "Succefull hearbeat",
+      "description": "Successful heartbeat",
       "operations": [
         {
           "name": "createEntities",
@@ -225,10 +233,7 @@
                   },
                   "observeEvents": [
                     "serverHeartbeatSucceededEvent"
-                  ],
-                  "uriOptions": {
-                    "heartbeatFrequencyMS": 500
-                  }
+                  ]
                 }
               }
             ]
@@ -242,7 +247,7 @@
             "event": {
               "serverHeartbeatSucceededEvent": {}
             },
-            "count": 3
+            "count": 1
           }
         }
       ],
@@ -252,21 +257,29 @@
           "ignoreExtraLogs": true,
           "ignoreLogMessages": [
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Server heartbeat started"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Starting server monitoring"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Stopped server monitoring"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Topology description changed"
               }
@@ -280,88 +293,6 @@
                 "message": "Starting topology monitoring",
                 "topologyId": {
                   "$$exists": true
-                }
-              }
-            },
-            {
-              "level": "debug",
-              "component": "topology",
-              "data": {
-                "message": "Server heartbeat succeeded",
-                "awaited": {
-                  "$$exists": true
-                },
-                "topologyId": {
-                  "$$exists": true
-                },
-                "serverHost": {
-                  "$$type": "string"
-                },
-                "serverPort": {
-                  "$$type": [
-                    "int",
-                    "long"
-                  ]
-                },
-                "driverConnectionId": {
-                  "$$exists": true
-                },
-                "serverConnectionId": {
-                  "$$exists": true
-                },
-                "durationMS": {
-                  "$$type": [
-                    "int",
-                    "long"
-                  ]
-                },
-                "reply": {
-                  "$$matchAsDocument": {
-                    "$$matchAsRoot": {
-                      "ok": 1
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "level": "debug",
-              "component": "topology",
-              "data": {
-                "message": "Server heartbeat succeeded",
-                "awaited": {
-                  "$$exists": true
-                },
-                "topologyId": {
-                  "$$exists": true
-                },
-                "serverHost": {
-                  "$$type": "string"
-                },
-                "serverPort": {
-                  "$$type": [
-                    "int",
-                    "long"
-                  ]
-                },
-                "driverConnectionId": {
-                  "$$exists": true
-                },
-                "serverConnectionId": {
-                  "$$exists": true
-                },
-                "durationMS": {
-                  "$$type": [
-                    "int",
-                    "long"
-                  ]
-                },
-                "reply": {
-                  "$$matchAsDocument": {
-                    "$$matchAsRoot": {
-                      "ok": 1
-                    }
-                  }
                 }
               }
             },
@@ -429,7 +360,6 @@
                     "serverHeartbeatFailedEvent"
                   ],
                   "uriOptions": {
-                    "heartbeatFrequencyMS": 500,
                     "appname": "failingHeartbeatLoggingTest"
                   }
                 }
@@ -476,26 +406,36 @@
           "ignoreExtraLogs": true,
           "ignoreLogMessages": [
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Server heartbeat started"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Server heartbeat succeeded"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Starting server monitoring"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Stopped server monitoring"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Topology description changed"
               }

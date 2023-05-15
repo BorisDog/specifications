@@ -1,0 +1,15 @@
+description: "expectedLogMessagesForClient-ignoreLogMessages-items"
+
+schemaVersion: "1.14"
+
+createEntities:
+  - client:
+      id: &client0 "client0"
+
+tests:
+  - description: "foo"
+    operations: []
+    expectLogMessages:
+      - client: *client0
+        messages: []
+        ignoreLogMessages: [0]

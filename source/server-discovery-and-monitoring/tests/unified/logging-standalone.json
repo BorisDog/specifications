@@ -1,5 +1,5 @@
 {
-  "description": "replicaset-logging",
+  "description": "standalone-logging",
   "schemaVersion": "1.14",
   "runOnRequirements": [
     {
@@ -12,8 +12,7 @@
   "createEntities": [
     {
       "client": {
-        "id": "setupClient",
-        "useMultipleMongoses": false
+        "id": "setupClient"
       }
     }
   ],
@@ -61,16 +60,22 @@
           "client": "client",
           "ignoreLogMessages": [
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Server heartbeat started"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Server heartbeat succeeded"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Server heartbeat failed"
               }
@@ -188,7 +193,7 @@
       ]
     },
     {
-      "description": "Succefull heartbeat",
+      "description": "Successful heartbeat",
       "operations": [
         {
           "name": "createEntities",
@@ -203,10 +208,7 @@
                   },
                   "observeEvents": [
                     "serverHeartbeatSucceededEvent"
-                  ],
-                  "uriOptions": {
-                    "heartbeatFrequencyMS": 500
-                  }
+                  ]
                 }
               }
             ]
@@ -234,36 +236,50 @@
           "ignoreExtraLogs": true,
           "ignoreLogMessages": [
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Topology description changed"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Stopped topology monitoring"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Stopped server monitoring"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Topology description changed"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Starting server monitoring"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Starting topology monitoring"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Server heartbeat failed"
               }
@@ -361,8 +377,7 @@
                     "serverHeartbeatFailedEvent"
                   ],
                   "uriOptions": {
-                    "appname": "failingHeartbeatLoggingTest",
-                    "heartbeatFrequencyMS": 500
+                    "appname": "failingHeartbeatLoggingTest"
                   }
                 }
               }
@@ -407,41 +422,57 @@
           "client": "client",
           "ignoreLogMessages": [
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Topology description changed"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Stopped topology monitoring"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Stopped server monitoring"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Topology description changed"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Starting server monitoring"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Starting topology monitoring"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Server heartbeat started"
               }
             },
             {
+              "level": "debug",
+              "component": "topology",
               "data": {
                 "message": "Server heartbeat succeeded"
               }
