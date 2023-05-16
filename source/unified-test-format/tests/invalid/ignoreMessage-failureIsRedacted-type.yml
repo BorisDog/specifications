@@ -1,4 +1,4 @@
-description: "ignoreLogMessage-component-type"
+description: "ignoreMessage-failureIsRedacted-type"
 
 schemaVersion: "1.14"
 
@@ -12,7 +12,8 @@ tests:
     expectLogMessages:
       - client: *client0
         messages: []
-        ignoreLogMessages:
+        ignoreMessages:
           - level: debug
-            component: 0
+            component: command
+            failureIsRedacted: 0
             data: {}

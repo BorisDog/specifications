@@ -1,4 +1,4 @@
-description: "expectedLogMessagesForClient-ignoreLogMessages-items"
+description: "expectedLogMessagesForClient-ignoreExtraMessages-items"
 
 schemaVersion: "1.14"
 
@@ -11,5 +11,5 @@ tests:
     operations: []
     expectLogMessages:
       - client: *client0
-        ignoreExtraLogs: "true"
+        ignoreExtraMessages: "true"
         messages: []

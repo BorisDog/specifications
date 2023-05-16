@@ -51,29 +51,6 @@
       "expectLogMessages": [
         {
           "client": "client",
-          "ignoreLogMessages": [
-            {
-              "level": "debug",
-              "component": "topology",
-              "data": {
-                "message": "Server heartbeat started"
-              }
-            },
-            {
-              "level": "debug",
-              "component": "topology",
-              "data": {
-                "message": "Server heartbeat succeeded"
-              }
-            },
-            {
-              "level": "debug",
-              "component": "topology",
-              "data": {
-                "message": "Server heartbeat failed"
-              }
-            }
-          ],
           "messages": [
             {
               "level": "debug",

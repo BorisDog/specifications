@@ -58,7 +58,7 @@
       "expectLogMessages": [
         {
           "client": "client",
-          "ignoreLogMessages": [
+          "ignoreMessages": [
             {
               "level": "debug",
               "component": "topology",
@@ -233,8 +233,8 @@
       "expectLogMessages": [
         {
           "client": "client",
-          "ignoreExtraLogs": true,
-          "ignoreLogMessages": [
+          "ignoreExtraMessages": true,
+          "ignoreMessages": [
             {
               "level": "debug",
               "component": "topology",
@@ -420,7 +420,7 @@
       "expectLogMessages": [
         {
           "client": "client",
-          "ignoreLogMessages": [
+          "ignoreMessages": [
             {
               "level": "debug",
               "component": "topology",

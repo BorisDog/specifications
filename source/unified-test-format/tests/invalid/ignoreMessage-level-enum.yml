@@ -1,4 +1,4 @@
-description: "ignoreLogMessage-data-required"
+description: "ignoreMessage-level-enum"
 
 schemaVersion: "1.14"
 
@@ -12,7 +12,7 @@ tests:
     expectLogMessages:
       - client: *client0
         messages: []
-        ignoreLogMessages:
-          - level: debug
+        ignoreMessages:
+          - level: foo
             component: command
-
+            data: {}

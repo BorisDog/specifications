@@ -37,7 +37,7 @@ tests:
         object: *client
     expectLogMessages:
       - client: *client
-        ignoreLogMessages:
+        ignoreMessages:
           - level: debug
             component: topology
             data:
@@ -142,8 +142,8 @@ tests:
           count: 3
     expectLogMessages:
       - client: *client
-        ignoreExtraLogs: true
-        ignoreLogMessages:
+        ignoreExtraMessages: true
+        ignoreMessages:
           - level: debug
             component: topology
             data:
@@ -249,8 +249,8 @@ tests:
         count: 1
     expectLogMessages:
       - client: *client
-        ignoreExtraLogs: true
-        ignoreLogMessages:
+        ignoreExtraMessages: true
+        ignoreMessages:
           - level: debug
             component: topology
             data:

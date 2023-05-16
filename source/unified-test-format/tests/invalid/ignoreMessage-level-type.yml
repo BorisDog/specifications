@@ -1,4 +1,4 @@
-description: "ignoreLogMessage-data-type"
+description: "ignoreMessage-level-type"
 
 schemaVersion: "1.14"
 
@@ -12,7 +12,7 @@ tests:
     expectLogMessages:
       - client: *client0
         messages: []
-        ignoreLogMessages:
-          - level: debug
+        ignoreMessages:
+          - level: 0
             component: command
-            data: 0
+            data: {}

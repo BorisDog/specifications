@@ -1397,14 +1397,18 @@ The structure of each object is as follows:
   that the messages produced are an exact match, i.e. that the expected and actual
   message counts are the same and that there are no extra messages emitted by the
   client during the test run.
+  Note: ``ignoreMessages`` and ``ignoreExtraMessages`` may exclude log messages from this evaluation.
 
-- ``ignoreLogMessages``: Optional array of `expectedLogMessage`_ objects. List of
+- ``ignoreMessages``: Optional array of `expectedLogMessage`_ objects. Unordered set of
   messages, which should be ignored on the corresponding client while executing `operations`_.
+  Test runer MUST exclude all log messages from observed messages that match any of the messages 
+  in ``ignoreMessages`` array before ``messages`` evaluation.
+  Matching rules used to match messages in ``ignoreMessages`` are identical to match rules used for ``messages`` matching.
 
-- ``ignoreExtraLogs``: Optional boolean. Specifies how the messages array is matched 
+- ``ignoreExtraMessages``: Optional boolean. Specifies how the messages array is matched 
   against the observed logs. If false, observed logs after all specified logs have
-  matched MUST cause a test failure; if true, observed logs after all specified logs
-  have been matched MUST NOT cause a test failure. Defaults to false.
+  matched MUST cause a test failure; if ``true``, observed logs after all specified logs
+  have been matched MUST NOT cause a test failure. Defaults to ``false``.
 
 expectedLogMessage
 ~~~~~~~~~~~~~~~~~~
@@ -3903,7 +3907,7 @@ Changelog
   Please note schema version bumps in changelog entries where applicable.
 
 :2022-05-10: **Schema version 1.14.**
-             Add ``ignoreLogMessages`` and ``ignoreExtraLogs`` fields
+             Add ``ignoreMessages`` and ``ignoreExtraMessages`` fields
              to ``expectedLogMessagesForClient``section.
 :2023-04-13: Remove ``readConcern`` and ``writeConcern`` options from ``runCommand`` operation.
 :2023-02-24: Fix typo in the description of the ``$$matchAsRoot`` matching operator.

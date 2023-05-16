@@ -550,8 +550,8 @@
             "type": "array",
             "items": { "$ref": "#/definitions/expectedLogMessage" } 
             },
-          "ignoreExtraLogs": { "type": "boolean" },
-          "ignoreLogMessages": {
+          "ignoreExtraMessages": { "type": "boolean" },
+          "ignoreMessages": {
             "type": "array",
             "items": { "$ref": "#/definitions/expectedLogMessage" } 
             }
