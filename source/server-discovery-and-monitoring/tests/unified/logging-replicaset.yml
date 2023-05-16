@@ -121,7 +121,7 @@ tests:
             data:
               message: "Stopped topology monitoring"
               topologyId: { $$exists: true }
-  - description: Successful hearbeat
+  - description: Successful heartbeat
     operations:
       - name: createEntities
         object: testRunner
@@ -211,7 +211,7 @@ tests:
                 $$matchAsDocument:
                   "$$matchAsRoot":
                     ok: 1
-  - description: Failing hearbeat
+  - description: Failing heartbeat
     operations:
     - name: createEntities
       object: testRunner
