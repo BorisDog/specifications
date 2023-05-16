@@ -1401,7 +1401,7 @@ The structure of each object is as follows:
 
 - ``ignoreMessages``: Optional array of `expectedLogMessage`_ objects. Unordered set of
   messages, which MUST be ignored on the corresponding client while executing `operations`_.
-  The test runner MUST exclude all log messages from observed messages that match any of the messages 
+  The test runner MUST exclude all log messages from observed messages that match any of the messages
   in ``ignoreMessages`` array before ``messages`` evaluation.
   Matching rules used to match messages in ``ignoreMessages`` are identical to match rules used for ``messages`` matching.
 

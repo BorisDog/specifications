@@ -391,9 +391,7 @@
             "client": "setupClient",
             "failPoint": {
               "configureFailPoint": "failCommand",
-              "mode": {
-                "times": 2
-              },
+              "mode": "alwaysOn",
               "data": {
                 "failCommands": [
                   "hello",

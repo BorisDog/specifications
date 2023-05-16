@@ -189,8 +189,7 @@ tests:
       arguments:
         failPoint:
           configureFailPoint: failCommand
-          mode:
-            times: 2 # account for RTT thread
+          mode: "alwaysOn"
           data:
             failCommands:
             - hello

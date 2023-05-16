@@ -342,7 +342,7 @@
       ]
     },
     {
-      "description": "Failing hearbeat",
+      "description": "Failing heartbeat",
       "operations": [
         {
           "name": "createEntities",
@@ -373,9 +373,7 @@
           "arguments": {
             "failPoint": {
               "configureFailPoint": "failCommand",
-              "mode": {
-                "times": 2
-              },
+              "mode": "alwaysOn",
               "data": {
                 "failCommands": [
                   "hello",
