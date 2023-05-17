@@ -119,8 +119,10 @@ the topology is closed and MUST NOT emit any other events when operating in this
 Log Messages
 ^^^^^^^^^^^^
 
+SDAM events details described in `Monitoring <#monitoring>_` apply to corresponding log messages.
 Please refer to the `SDAM logging specification <../server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#log-messages>`_ 
 for details on SDAM logging. Drivers MUST emit the relevant SDAM log messages, such as:
+
 - `Starting Topology Monitoring <../server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#starting-topology-monitoring-log-message>`_ 
 - `Stopped Topology Mmonitoring <../server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#stopped-topology-monitoring-log-message>`_ 
 - `Starting Server Monitoring <../server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#starting-server-monitoring-log-message>`_ 
