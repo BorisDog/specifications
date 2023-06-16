@@ -15,8 +15,7 @@ SDAM Logging and Monitoring Specification
 Abstract
 ========
 
-The SDAM logging and monitoring specification defines a set of behaviour in the drivers for providing runtime information about server discovery and monitoring (SDAM) in log
-messages as well as in events which users can consume programmatically, either directly or by integrating with third-party APM libraries.
+The SDAM logging and monitoring specification defines a set of behaviors in the driver for providing runtime information about server discovery and monitoring (SDAM) in log messages, as well as in events that users can consume programmatically, either directly or by integrating with third-party APM libraries.
 
 -----------
 Definitions
@@ -54,7 +53,7 @@ Guidance
 Documentation
 -------------
 
-The documentation provided in code below is merely for driver authors and SHOULD NOT be taken as required documentation for the driver.
+The documentation provided in the code below is merely for driver authors and SHOULD NOT be taken as required documentation for the driver.
 
 Messages and Events
 -------------------
