@@ -1,5 +1,5 @@
 {
-  "description": "standalone-logging",
+  "description": "loadbalanced-logging",
   "schemaVersion": "1.14",
   "runOnRequirements": [
     {
