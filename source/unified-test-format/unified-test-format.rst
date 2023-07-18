@@ -1177,7 +1177,7 @@ The structure of each object is as follows:
   `CMAP
   <../connection-monitoring-and-pooling/connection-monitoring-and-pooling.rst#events>`__
   events, and ``sdam`` for `SDAM
-  <../server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events>`__
+  <../server-discovery-and-monitoring/server-discovery-and-monitoring-logging-and-monitoring.rst#events>`__
   events. Defaults to ``command`` if omitted.
 
 - ``events``: Required array of `expectedEvent`_ objects. List of events, which
@@ -1376,7 +1376,7 @@ The structure of this object is as follows:
 .. _expectedEvent_serverDescriptionChangedEvent:
 
 - ``serverDescriptionChangedEvent``: Optional object. Assertions for one or more
-  `ServerDescriptionChangedEvent <../server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events>`__ fields.
+  `ServerDescriptionChangedEvent <../server-discovery-and-monitoring/server-discovery-and-monitoring-logging-and-monitoring.rst#events>`__ fields.
 
   The structure of this object is as follows:
 
@@ -1399,7 +1399,7 @@ The structure of this object is as follows:
 
 - ``topologyDescriptionChangedEvent``: Optional object. If present, this object
   MUST be an empty document as no assertions are currently supported for
-  `TopologyDescriptionChangedEvent <../server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events>`__ fields.
+  `TopologyDescriptionChangedEvent <../server-discovery-and-monitoring/server-discovery-and-monitoring-logging-and-monitoring.rst#events>`__ fields.
 
 hasServiceId
 `````````````
@@ -1438,6 +1438,18 @@ The structure of each object is as follows:
   that the messages produced are an exact match, i.e. that the expected and actual
   message counts are the same and that there are no extra messages emitted by the
   client during the test run.
+  Note: ``ignoreMessages`` and ``ignoreExtraMessages`` may exclude log messages from this evaluation.
+
+- ``ignoreMessages``: Optional array of `expectedLogMessage`_ objects. Unordered set of
+  messages, which MUST be ignored on the corresponding client while executing `operations`_.
+  The test runner MUST exclude all log messages from observed messages that match any of the messages
+  in ``ignoreMessages`` array before ``messages`` evaluation.
+  Matching rules used to match messages in ``ignoreMessages`` are identical to match rules used for ``messages`` matching.
+
+- ``ignoreExtraMessages``: Optional boolean. Specifies how the ``messages`` array is matched 
+  against the observed logs. If ``false``, observed logs after all specified logs have
+  matched MUST cause a test failure; if ``true``, observed logs after all specified logs
+  have been matched MUST NOT cause a test failure. Defaults to ``false``.
 
 expectedLogMessage
 ~~~~~~~~~~~~~~~~~~
@@ -4012,6 +4024,9 @@ Changelog
 ..
   Please note schema version bumps in changelog entries where applicable.
 
+:2022-07-18: **Schema version 1.16.**
+             Add ``ignoreMessages`` and ``ignoreExtraMessages`` fields
+             to ``expectedLogMessagesForClient`` section.
 :2023-06-26: ``runOnRequirement.csfle`` should check for crypt_shared and/or
              mongocryptd.
 :2023-06-13: **Schema version 1.15.**
